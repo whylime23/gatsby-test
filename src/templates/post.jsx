@@ -46,7 +46,7 @@ export default class PostTemplate extends React.Component {
     const { slug } = this.props.pageContext;
     const expanded = !mobile;
     const postOverlapClass = mobile ? "post-overlap-mobile" : "post-overlap";
-    const postNode = this.props.data.markdownRemark;
+    const postNode = this.props.pageContext.node;
     const post = postNode.frontmatter;
     if (!post.id) {
       post.id = slug;
@@ -101,28 +101,3 @@ export default class PostTemplate extends React.Component {
     );
   }
 }
-
-export const pageQuery = graphql`
-  query BlogPostBySlug($slug: String!) {
-    markdownRemark(fields: { slug: { eq: $slug } }) {
-      html
-      timeToRead
-      excerpt
-      frontmatter {
-        title
-        cover
-        date
-        category
-        tags
-      }
-      fields {
-        nextTitle
-        nextSlug
-        prevTitle
-        prevSlug
-        slug
-        date
-      }
-    }
-  }
-`;

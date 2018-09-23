@@ -1,8 +1,14 @@
+const axios = require("axios");
 const path = require("path");
 const _ = require("lodash");
 const moment = require("moment");
 const siteConfig = require("./data/SiteConfig");
 require("babel-polyfill");
+
+// Replaced GraphQL query with Axios GET request and added more data to context object in createPage action
+// References:
+// https://www.gatsbyjs.org/tutorial/part-seven/
+// https://www.gatsbyjs.org/docs/actions/#createPage
 
 const postNodes = [];
 
@@ -103,25 +109,8 @@ exports.createPages = ({ graphql, actions }) => {
     const tagPage = path.resolve("src/templates/tag.jsx");
     const categoryPage = path.resolve("src/templates/category.jsx");
     resolve(
-      graphql(
-        `
-          {
-            allMarkdownRemark {
-              edges {
-                node {
-                  frontmatter {
-                    tags
-                    category
-                  }
-                  fields {
-                    slug
-                  }
-                }
-              }
-            }
-          }
-        `
-      ).then(result => {
+      axios.get('https://9ss7bxey8k.execute-api.ap-southeast-2.amazonaws.com/default/dummy_service')
+      .then(result => {
         if (result.errors) {
           /* eslint no-console: "off" */
           console.log(result.errors);
@@ -130,7 +119,7 @@ exports.createPages = ({ graphql, actions }) => {
 
         const tagSet = new Set();
         const categorySet = new Set();
-        result.data.allMarkdownRemark.edges.forEach(edge => {
+        result.data.Data.forEach(edge => {
           if (edge.node.frontmatter.tags) {
             edge.node.frontmatter.tags.forEach(tag => {
               tagSet.add(tag);
@@ -145,8 +134,9 @@ exports.createPages = ({ graphql, actions }) => {
             path: edge.node.fields.slug,
             component: postPage,
             context: {
-              slug: edge.node.fields.slug
-            }
+              slug: edge.node.fields.slug,
+              node: edge.node
+            },
           });
         });
 
